@@ -22,7 +22,7 @@ commentCltr.comment= async (req, res) => {
         await createComment.save();
         await Post.findByIdAndUpdate( postId , { $push: { comments: { commentId: createComment._id} }});
   
-        createComment =await createComment.populate('author')
+        createComment = await createComment.populate('author')
         res.status(201).json(createComment);
         
 
@@ -72,7 +72,7 @@ commentCltr.update=async(req,res)=>{
         const body = _.pick(req.body,["comment"])
         try{
             
-            const comment = await Comments.findOneAndUpdate({_id:commentId,author:req.user.id,post:postId},body,{new:true})
+            const comment = await Comments.findOneAndUpdate({_id:commentId,author:req.user.id,post:postId},body,{new:true}).populate("author")
             res.status(200).json(comment)
         }catch(e){
             console.log(e)

@@ -106,7 +106,7 @@ postCltr.create = async (req, res) => {
             const populatedPost = await Post.findById(post._id).populate({
                 path: 'author',
                 select: 'username email createdAt updatedAt',
-            });
+            })
 
             res.status(201).json(populatedPost)
             
@@ -145,7 +145,7 @@ postCltr.update  =async(req,res)=>{
 
         console.log(body)
         try{
-            const post = await Post.findOneAndUpdate({_id:req.params.id,author:req.user.id}, body,{new:true})
+            const post = await Post.findOneAndUpdate({_id:req.params.id,author:req.user.id}, body,{new:true}).populate("comments")
 
         
             if(body.categories){

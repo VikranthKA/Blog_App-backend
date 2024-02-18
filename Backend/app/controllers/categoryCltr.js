@@ -24,7 +24,7 @@ categoryCtrl.createCategory = async (req,res) =>{
 
 categoryCtrl.getAll=async(req,res)=>{
     try{
-        const data = await Category.find()
+        const data = await Category.find().populate("posts")
         res.status(200).json(data)
     }catch(e){
         res.status(500).json(e)
