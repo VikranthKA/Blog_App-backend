@@ -127,15 +127,46 @@ postCltr.getById=async(req,res)=>{//single post By Id
         res.status(500).json(e)
     }
 }
-postCltr.getAll=async(req,res)=>{
-    try{
-        const post = await Post.find().populate("author").populate("categories.categoryId").populate('comments.commentId')
-        res.json(post)
-    }catch(e){
-        console.log(e)
-        res.status(500).json({e:"error in catch"}) 
+
+postCltr.getAll = async (req, res) => {
+    try {
+        const search = req.query.search ? String(req.query.search) : "";
+        const sortBy = req.query.sortBy ? String(req.query.sortBy) : "title";
+        const order = req.query.order === "asc" ? 1 : -1;
+        const searchQuery = {
+            title: { $regex: search, $options: "i" }
+        };
+        
+
+        const sortQuery = {};
+        sortQuery[sortBy] = order;
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+
+        console.log(search, sortBy, order, page, limit);
+
+        const posts = await Post.find(searchQuery)
+            .sort(sortQuery)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .populate("author").populate("comments.commentId").populate("categories.categoryId")
+        const total = await Post.countDocuments(searchQuery);
+        const totalPages = Math.ceil(total / limit);
+
+        return res.json({
+            data: posts,
+            total,
+            page,
+            totalPages
+        });
+    } catch (error) {
+        console.error( error);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};
+
+
 postCltr.update  =async(req,res)=>{
     const errors = validationResult(req)
     if(!errors.isEmpty()){
@@ -170,6 +201,7 @@ postCltr.update  =async(req,res)=>{
         }
     }
 }
+
 postCltr.remove=async(req,res)=>{
     try{
         const postDelete = await Post.findOneAndDelete({

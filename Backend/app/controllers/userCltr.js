@@ -59,8 +59,8 @@ userCltr.login=async(req,res)=>{
             const token = jwt.sign(tokenData, secretKey, {expiresIn:"14d"})
             res.status(201).json({token:token})
         }catch(e){
-            res.status(500).json({errors:errors.array()})
             console.log(e)
+            res.status(500).json({errors:errors.array()})
         }
 
     }
